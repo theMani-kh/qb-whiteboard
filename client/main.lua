@@ -1,72 +1,70 @@
-local currentClassRoomBoardUrl = "https://cdn.discordapp.com/attachments/979775387896774661/982377179751018577/unknown.png"
-local DefaultBoardUrl = "https://cdn.discordapp.com/attachments/979775387896774661/982377179751018577/unknown.png"
-local inClassRoom = false
 local dui = nil
 local duiCounter = 0
 local availableDuis = {}
 local duis = {}
 
 Citizen.CreateThread(function()
+    for k,v in pairs(Config.Locations) do
 
-    local classZones = {}
-    classZones[1] = BoxZone:Create(
-        vector3(444.6514, -985.756, 34.970), 10.2, 11.2, {
-            name="class_zone",
-            debugPoly = false,
-            minZ = 33.9,
-            maxZ = 37.2
-        }
-    )
+        local Zones = {}
+        Zones[1] = BoxZone:Create(
+            v.PolyZone.coords, v.PolyZone.length, v.PolyZone.width, {
+                name = k..'_Room',
+                debugPoly = Config.Debug,
+                minZ = v.PolyZone.minZ,
+                maxZ = v.PolyZone.maxZ
+            }
+        )
 
-    local ClassCombo = ComboZone:Create(classZones, {name = "ClassCombo", debugPoly = false})
-    ClassCombo:onPlayerInOut(function(isPointInside)
-        if isPointInside then
-            if not dui then
-                dui = getDui(currentClassRoomBoardUrl)
-                AddReplaceTexture("prop_planning_b1", "prop_base_white_01b", dui.dictionary, dui.texture)
+        local Combo = ComboZone:Create(Zones, {name = k..'_Room', debugPoly = false})
+        Combo:onPlayerInOut(function(isPointInside)
+            if isPointInside then
+                if not dui then
+                    dui = getDui(v.currentImage)
+                    AddReplaceTexture("prop_planning_b1", "prop_base_white_01b", dui.dictionary, dui.texture)
+                else
+                    changeDuiUrl(dui.id, v.currentImage)
+                end
+                Config.Locations[k].inZone = true
             else
-                changeDuiUrl(dui.id, currentClassRoomBoardUrl)
+                RemoveReplaceTexture("prop_planning_b1", "prop_base_white_01b")
+                if dui ~= nil then
+                    releaseDui(dui.id)
+                    dui = nil
+                end
+                Config.Locations[k].inZone = false
             end
-            inClassRoom = true
-        else
-            RemoveReplaceTexture("prop_planning_b1", "prop_base_white_01b")
-            if dui ~= nil then
-                releaseDui(dui.id)
-                dui = nil
-            end
-            inClassRoom = false
-        end
-    end)
+        end)
 
-    exports['qb-target']:AddBoxZone("mrdp_change_picture", vector3(439.44, -985.89, 34.97), 1.0, 0.4, {
-        name = "mrdp_change_picture",
-        heading = 0,
-        debugPoly = false,
-        minZ = 35.37,
-        maxZ = 36.17
-    }, {
-        options = {
-            {
-                type = "client",
-                event = "qb-whiteboard:changewhiteboardurl",
-                location = 'classroom',
-                icon = "fa fa-camera",
-                label = "Change Image",
-                job = "police",
+        exports['qb-target']:AddBoxZone(k..'_Target', v.Target.coords, v.Target.length, v.Target.width, {
+            name = k..'_Target',
+            heading = 0,
+            debugPoly = false,
+            minZ = v.Target.minZ,
+            maxZ = v.Target.maxZ
+        }, {
+            options = {
+                {
+                    type = "client",
+                    event = "qb-whiteboard:changewhiteboardurl",
+                    location = k,
+                    icon = "fa fa-camera",
+                    label = "Change Image",
+                    job = v.job
+                },
+                {
+                    type = "client",
+                    event = "qb-whiteboard:changewhiteboardurl",
+                    url = Config.DefaultBoardUrl,
+                    location = k,
+                    icon = "fa fa-lock",
+                    label = "Remove Image",
+                    job = v.job
+                },
             },
-            {
-                type = "client",
-                event = "qb-whiteboard:changewhiteboardurl",
-                url = DefaultBoardUrl,
-                location = 'classroom',
-                icon = "fa fa-lock",
-                label = "Remove Image",
-                job = "police",
-            },
-        },
-        distance = 2.5
-    })
-
+            distance = 2.5
+        })
+    end
 end)
 
 function getDui(url, width, height)
@@ -160,10 +158,10 @@ end)
 
 RegisterNetEvent("qb-whiteboard:changewhiteboardcli", function(pUrl, pRoom)
     if pRoom == "classroom" then
-        currentClassRoomBoardUrl = pUrl
+        Config.Locations[pRoom].currentImage = pUrl
 
-        if inClassRoom and dui then
-            changeDuiUrl(dui.id, currentClassRoomBoardUrl)
+        if Config.Locations[pRoom].inZone and dui then
+            changeDuiUrl(dui.id, Config.Locations[pRoom].currentImage)
         end
     end
 end)

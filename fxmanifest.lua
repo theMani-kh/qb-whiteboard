@@ -3,6 +3,8 @@ game 'gta5'
 
 author 'theMani_kh'
 
+shared_script 'config.lua'
+
 client_scripts {
     '@PolyZone/client.lua',
 	'@PolyZone/BoxZone.lua',
