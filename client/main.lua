@@ -1,4 +1,5 @@
 local currentClassRoomBoardUrl = "https://cdn.discordapp.com/attachments/979775387896774661/982377179751018577/unknown.png"
+local DefaultBoardUrl = "https://cdn.discordapp.com/attachments/979775387896774661/982377179751018577/unknown.png"
 local inClassRoom = false
 local dui = nil
 local duiCounter = 0
@@ -48,8 +49,18 @@ Citizen.CreateThread(function()
             {
                 type = "client",
                 event = "qb-whiteboard:changewhiteboardurl",
+                location = 'classroom',
                 icon = "fa fa-camera",
                 label = "Change Image",
+                job = "police",
+            },
+            {
+                type = "client",
+                event = "qb-whiteboard:changewhiteboardurl",
+                url = DefaultBoardUrl,
+                location = 'classroom',
+                icon = "fa fa-lock",
+                label = "Remove Image",
                 job = "police",
             },
         },
@@ -124,22 +135,26 @@ function releaseDui(id)
     table.insert(availableDuis[duiSize], id)
 end
 
-AddEventHandler("qb-whiteboard:changewhiteboardurl", function()
-    local keyboard = exports['qb-input']:ShowInput({
-		header = "URL",
-		submitText = "Confirm",
-		inputs = {
-			{
-				type = 'text',
-				isRequired = true,
-				text = "link",
-				name = 'input',
-			}
-		}
-	})
-    local link = keyboard.input
-    if link then
-        TriggerServerEvent("qb-whiteboard:changewhiteboard", link, 'classroom')
+AddEventHandler("qb-whiteboard:changewhiteboardurl", function(data)
+    if data.url then
+        TriggerServerEvent("qb-whiteboard:changewhiteboard", data.url, data.location)
+    else
+        local keyboard = exports['qb-input']:ShowInput({
+            header = "URL",
+            submitText = "Confirm",
+            inputs = {
+                {
+                    type = 'text',
+                    isRequired = true,
+                    text = "link",
+                    name = 'input',
+                }
+            }
+        })
+        local link = keyboard.input
+        if link then
+            TriggerServerEvent("qb-whiteboard:changewhiteboard", link, data.location)
+        end
     end
 end)
 
