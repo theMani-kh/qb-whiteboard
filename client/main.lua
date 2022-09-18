@@ -21,13 +21,13 @@ Citizen.CreateThread(function()
             if isPointInside then
                 if not dui then
                     dui = getDui(v.currentImage)
-                    AddReplaceTexture("prop_planning_b1", "prop_base_white_01b", dui.dictionary, dui.texture)
+                    AddReplaceTexture(v.origTxd, v.origTxn, dui.dictionary, dui.texture)
                 else
                     changeDuiUrl(dui.id, v.currentImage)
                 end
                 Config.Locations[k].inZone = true
             else
-                RemoveReplaceTexture("prop_planning_b1", "prop_base_white_01b")
+                RemoveReplaceTexture(v.origTxd, v.origTxn)
                 if dui ~= nil then
                     releaseDui(dui.id)
                     dui = nil
@@ -157,7 +157,7 @@ AddEventHandler("qb-whiteboard:changewhiteboardurl", function(data)
 end)
 
 RegisterNetEvent("qb-whiteboard:changewhiteboardcli", function(pUrl, pRoom)
-    if pRoom == "classroom" then
+    if Config.Locations[pRoom] ~= nil then
         Config.Locations[pRoom].currentImage = pUrl
 
         if Config.Locations[pRoom].inZone and dui then
