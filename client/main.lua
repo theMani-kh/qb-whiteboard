@@ -1,9 +1,22 @@
+local QBCore = exports['qb-core']:GetCoreObject()
+
 local dui = nil
 local duiCounter = 0
 local availableDuis = {}
 local duis = {}
 
 Citizen.CreateThread(function()
+
+    -- Sync Image
+    QBCore.Functions.TriggerCallback('qb-whiteboard:getCurrentImage', function(images)
+        for k,v in pairs(images) do
+            if Config.Locations[k] ~= nil then
+                Config.Locations[k].currentImage = v
+            end
+        end
+    end)
+
+    -- Setup Zones
     for k,v in pairs(Config.Locations) do
 
         local Zones = {}
@@ -65,6 +78,7 @@ Citizen.CreateThread(function()
             distance = 2.5
         })
     end
+
 end)
 
 function getDui(url, width, height)
