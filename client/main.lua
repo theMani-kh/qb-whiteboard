@@ -20,7 +20,7 @@ Citizen.CreateThread(function()
     for k,v in pairs(Config.Locations) do
 
         local Zones = {}
-        Zones[1] = BoxZone:Create(
+        Zones[#Zones + 1] = BoxZone:Create(
             v.PolyZone.coords, v.PolyZone.length, v.PolyZone.width, {
                 name = k..'_Room',
                 debugPoly = Config.Debug,
