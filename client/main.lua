@@ -163,7 +163,7 @@ AddEventHandler("qb-whiteboard:changewhiteboardurl", function(data)
                 }
             }
         })
-        local link = keyboard.input
+        local link = keyboard and keyboard.input or nil
         if link then
             TriggerServerEvent("qb-whiteboard:changewhiteboard", link, data.location)
         end
