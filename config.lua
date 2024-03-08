@@ -1,7 +1,7 @@
 Config = {}
 
 Config.Debug = false -- Debug Status For PolyZone
-Config.DefaultBoardUrl = "https://cdn.discordapp.com/attachments/979775387896774661/982377179751018577/unknown.png" -- Don't Edit
+Config.DefaultBoardUrl = "https://s8.uupload.ir/files/images_sazw.png" -- Don't Edit
 
 Config.Locations = {
     ['classroom'] = { -- Name Of Room
